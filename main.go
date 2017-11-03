@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/docker/docker/api/types"
@@ -19,22 +20,22 @@ var version string
 func main() {
 	cli, err := client.NewEnvClient()
 	if err != nil {
-		panic(err)
+		log.Fatal("Create Docker Client Error:", err)
 	}
 	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	if err != nil {
-		panic(err)
+		log.Fatal("Get Container Error:", err)
 	}
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "config":
 			hostname, err := os.Hostname()
 			if err != nil {
-				panic(err)
+				log.Fatal("Get Hostname Error:", err)
 			}
 			graph.PrintGraphDefinition(hostname, containers)
 			os.Exit(0)
-		case "-v":
+		case "-v", "--version", "version":
 			fmt.Println("version: ", version)
 			os.Exit(0)
 		}
@@ -50,7 +51,7 @@ func main() {
 			jsonBytes := []byte(sc.Text())
 			sf := new(stats.ContainerStats)
 			if err := json.Unmarshal(jsonBytes, sf); err != nil {
-				fmt.Println("JSON Unmarshal error:", err)
+				log.Println("JSON Unmarshal error:", err)
 			}
 			mu, ml := sf.MemUsage()
 			br, bw := sf.BlockIO()
@@ -58,6 +59,7 @@ func main() {
 			graph.AddMetricValues(&graph.MetricValues{
 				ID:         c.ID[:12],
 				Image:      c.Image,
+				Names:      c.Names,
 				CPUPercent: sf.CPUPercent(),
 				MemUsage:   mu,
 				MemLimit:   ml,

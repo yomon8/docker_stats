@@ -9,17 +9,33 @@ sudo ln -s /usr/share/munin/plugins/docker_stats /etc/munin/plugins/docker_stats
 
 ### Adjust user permission 
 
-```
+```sh
 cat <<EOF > /etc/munin/plugin-conf.d/docker_stats
 [docker_stats]
 user root
 EOF
 ```
 
+```
+sudo /etc/init.d/munin-node restart
+```
+
+
 
 ### Test
 
-```
+```sh
 sudo -u munin munin-run docker_stats config
 sudo -u munin munin-run docker_stats
+```
+
+```sh
+$ nc localhost 4949
+# munin node at yourhostname
+config docker_stats
+...
+...
+fetch docker_stats
+...
+...
 ```
