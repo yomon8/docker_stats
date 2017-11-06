@@ -12,20 +12,55 @@ import (
 	"github.com/docker/docker/client"
 
 	"github.com/yomon8/docker_stats/graph"
+	"github.com/yomon8/docker_stats/statefile"
 	"github.com/yomon8/docker_stats/stats"
 )
 
 var version string
+
+func getContainerList(cli *client.Client) ([]types.Container, error) {
+	containerList, err := statefile.Get().GetContainerList()
+	if err != nil {
+		return nil, err
+	}
+
+	containerListApi, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, c := range containerListApi {
+		isNewContainer := true
+		for _, sc := range containerList {
+			if sc.Names[0] == c.Names[0] {
+				isNewContainer = false
+				break
+			}
+		}
+		if isNewContainer {
+			containerList = append(containerList, c)
+		}
+	}
+
+	err = statefile.Get().SaveContainerList(containerList)
+	if err != nil {
+		return nil, err
+	}
+
+	return containerList, nil
+}
 
 func main() {
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		log.Fatal("Create Docker Client Error:", err)
 	}
-	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
+
+	containers, err := getContainerList(cli)
 	if err != nil {
-		log.Fatal("Get Container Error:", err)
+		log.Fatal("Get ContainerList Error:", err)
 	}
+
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "config":

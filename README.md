@@ -20,6 +20,14 @@ EOF
 sudo /etc/init.d/munin-node restart
 ```
 
+### Remove Container from graph
+
+If you want to remove old container from munin graph.
+
+```
+rm ${MUNIN_PLUGSTATE}/containerlist
+```
+
 
 
 ### Test
