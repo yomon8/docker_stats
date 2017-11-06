@@ -5,36 +5,37 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 
 	"github.com/docker/docker/api/types"
 )
 
 const (
-	stateFileDirEnv = "MUNIN_PLUGSTATE"
 	stateFileName   = "containerlist"
+	stateFileDirEnv = "MUNIN_PLUGSTATE"
 )
 
-var instance *stateFile
-
-type stateFile struct {
+type StateFile struct {
 	filename string
 }
 
-func Get() *stateFile {
-	if instance == nil {
-		instance = &stateFile{
-			filename: fmt.Sprint(os.Getenv(stateFileDirEnv), "/", stateFileName),
-		}
+func NewStateFile() (*StateFile, error) {
+	dir := os.Getenv(stateFileDirEnv)
+	if dir == "" {
+		return nil, fmt.Errorf("os env [%s] is not set:", stateFileDirEnv)
 	}
-	return instance
+
+	return &StateFile{
+		filename: path.Join(dir, stateFileName),
+	}, nil
 }
 
-func (s *stateFile) exists() bool {
+func (s *StateFile) exists() bool {
 	_, err := os.Stat(s.filename)
 	return err == nil
 }
 
-func (s *stateFile) SaveContainerList(c []types.Container) error {
+func (s *StateFile) SaveContainerList(c []types.Container) error {
 	b, err := json.Marshal(c)
 	if err != nil {
 		return err
@@ -52,7 +53,7 @@ func (s *stateFile) SaveContainerList(c []types.Container) error {
 	return nil
 }
 
-func (s *stateFile) GetContainerList() ([]types.Container, error) {
+func (s *StateFile) GetContainerList() ([]types.Container, error) {
 	var savedContainerList []types.Container
 	if !s.exists() {
 		return savedContainerList, nil

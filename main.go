@@ -18,8 +18,8 @@ import (
 
 var version string
 
-func getContainerList(cli *client.Client) ([]types.Container, error) {
-	containerList, err := statefile.Get().GetContainerList()
+func getContainerList(cli *client.Client, statefile *statefile.StateFile) ([]types.Container, error) {
+	containerList, err := statefile.GetContainerList()
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func getContainerList(cli *client.Client) ([]types.Container, error) {
 		}
 	}
 
-	err = statefile.Get().SaveContainerList(containerList)
+	err = statefile.SaveContainerList(containerList)
 	if err != nil {
 		return nil, err
 	}
@@ -51,27 +51,36 @@ func getContainerList(cli *client.Client) ([]types.Container, error) {
 }
 
 func main() {
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "-v", "--version", "version":
+			fmt.Println("version: ", version)
+			os.Exit(0)
+		}
+	}
+
+	statefile, err := statefile.NewStateFile()
+	if err != nil {
+		log.Fatal("State File Error:", err)
+	}
+
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		log.Fatal("Create Docker Client Error:", err)
 	}
 
-	containers, err := getContainerList(cli)
+	containers, err := getContainerList(cli, statefile)
 	if err != nil {
 		log.Fatal("Get ContainerList Error:", err)
 	}
 
 	if len(os.Args) > 1 {
-		switch os.Args[1] {
-		case "config":
+		if "config" == os.Args[1] {
 			hostname, err := os.Hostname()
 			if err != nil {
 				log.Fatal("Get Hostname Error:", err)
 			}
 			graph.PrintGraphDefinition(hostname, containers)
-			os.Exit(0)
-		case "-v", "--version", "version":
-			fmt.Println("version: ", version)
 			os.Exit(0)
 		}
 	}
