@@ -24,7 +24,8 @@ sudo /etc/init.d/munin-node restart
 
 If you want to remove old container from munin graph.
 
-```
+```sh
+# usually /var/lib/munin/plugin-state/<username>/containerlist
 rm ${MUNIN_PLUGSTATE}/containerlist
 ```
 
