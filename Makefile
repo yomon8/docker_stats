@@ -18,7 +18,7 @@ package:
 		gox \
 		-osarch $(OSARCH) \
 		-output "./pkg/{{.OS}}_{{.Arch}}/{{.Dir}}" \
-		-ldflags "-X github.com/yomon8/docker_stats.version=$(VERSION)" \
+		-ldflags "-X main.version=$(VERSION)" \
 		.;\
 	    for d in $$(ls ./pkg);do zip ./pkg/$${d}.zip ./pkg/$${d}/*;done
 
