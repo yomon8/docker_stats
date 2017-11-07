@@ -16,10 +16,14 @@ import (
 	"github.com/yomon8/docker_stats/stats"
 )
 
+const (
+	stateFileName = "containerlist"
+)
+
 var version string
 
-func getContainerList(cli *client.Client, statefile *statefile.StateFile) ([]types.Container, error) {
-	containerList, err := statefile.GetContainerList()
+func getContainerList(cli *client.Client, statefile *statefile.ContainerList) ([]types.Container, error) {
+	containerList, err := statefile.Load()
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +46,7 @@ func getContainerList(cli *client.Client, statefile *statefile.StateFile) ([]typ
 		}
 	}
 
-	err = statefile.SaveContainerList(containerList)
+	err = statefile.Save(containerList)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +63,7 @@ func main() {
 		}
 	}
 
-	statefile, err := statefile.NewStateFile()
+	statefile, err := statefile.NewContainerList(stateFileName)
 	if err != nil {
 		log.Fatal("State File Error:", err)
 	}
@@ -90,6 +94,7 @@ func main() {
 		if err != nil {
 			continue
 		}
+
 		sc := bufio.NewScanner(cstat.Body)
 		if sc.Scan() {
 			jsonBytes := []byte(sc.Text())
