@@ -6,6 +6,7 @@
 *.swp
 *.txt
 pkg/
+tmp/
 
 # Binaries for programs and plugins
 *.exe

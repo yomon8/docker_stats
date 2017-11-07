@@ -4,6 +4,9 @@ VERSION  := $(shell git describe --tags)
 
 all: build
 
+test: build
+	./test.sh
+
 deps:
 	go get -d -v -t ./...
 	go get github.com/golang/lint/golint
