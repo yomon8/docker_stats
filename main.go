@@ -23,7 +23,7 @@ const (
 var version string
 
 func getContainerList(cli *client.Client, cl *statefile.ContainerList) ([]types.Container, error) {
-	containerList, err := cl.Load()
+	containerListFile, err := cl.Load()
 	if err != nil {
 		return nil, err
 	}
@@ -33,9 +33,11 @@ func getContainerList(cli *client.Client, cl *statefile.ContainerList) ([]types.
 		return nil, err
 	}
 
+	containerList := make([]types.Container, len(containerListFile))
+	copy(containerList, containerListFile)
 	for _, c := range containerListApi {
 		isNewContainer := true
-		for _, sc := range containerList {
+		for _, sc := range containerListFile {
 			if sc.Names[0] == c.Names[0] {
 				isNewContainer = false
 				break
