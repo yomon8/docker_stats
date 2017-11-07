@@ -21,7 +21,7 @@ const (
 	blkkey        = "blk"
 )
 
-func getKey(names []string) string {
+func GetKey(names []string) string {
 	var key string
 	name := names[0]
 	if strings.Contains(name, ".") {
@@ -72,7 +72,7 @@ func printGraphMetadata(graphkey, title, base, vlabel string) {
 
 func printCPUGraph(containers []types.Container) {
 	for _, c := range containers {
-		key := getKey(c.Names)
+		key := GetKey(c.Names)
 		fmt.Printf("%s_%s.label %s\n", key, cpukey, key)
 		fmt.Printf("%s_%s.type %s\n", key, cpukey, "GAUGE")
 		fmt.Printf("%s_%s.min %d\n", key, cpukey, 0)
@@ -86,7 +86,7 @@ func printMemoryGraph(containers []types.Container) {
 	fmt.Printf("limit_%s.min %d\n", memkey, 0)
 	fmt.Printf("limit_%s.draw %s\n", memkey, "AREA")
 	for _, c := range containers {
-		key := getKey(c.Names)
+		key := GetKey(c.Names)
 		fmt.Printf("%s_%s.label %s\n", key, memkey, key)
 		fmt.Printf("%s_%s.type %s\n", key, memkey, "GAUGE")
 		fmt.Printf("%s_%s.min %d\n", key, memkey, 0)
@@ -96,7 +96,7 @@ func printMemoryGraph(containers []types.Container) {
 
 func printNWGraphTX(containers []types.Container) {
 	for _, c := range containers {
-		key := getKey(c.Names)
+		key := GetKey(c.Names)
 		fmt.Printf("%s_%stx.label %s_tx\n", key, nwkey, key)
 		fmt.Printf("%s_%stx.type %s\n", key, nwkey, "GAUGE")
 		fmt.Printf("%s_%stx.min %d\n", key, nwkey, 0)
@@ -105,7 +105,7 @@ func printNWGraphTX(containers []types.Container) {
 }
 func printNWGraphRX(containers []types.Container) {
 	for _, c := range containers {
-		key := getKey(c.Names)
+		key := GetKey(c.Names)
 		fmt.Printf("%s_%srx.label %s_rx\n", key, nwkey, key)
 		fmt.Printf("%s_%srx.type %s\n", key, nwkey, "GAUGE")
 		fmt.Printf("%s_%srx.min %d\n", key, nwkey, 0)
@@ -115,7 +115,7 @@ func printNWGraphRX(containers []types.Container) {
 
 func printBLKGraphWR(containers []types.Container) {
 	for _, c := range containers {
-		key := getKey(c.Names)
+		key := GetKey(c.Names)
 		fmt.Printf("%s_%swr.label %s_wr\n", key, blkkey, key)
 		fmt.Printf("%s_%swr.type %s\n", key, blkkey, "GAUGE")
 		fmt.Printf("%s_%swr.min %d\n", key, blkkey, 0)
@@ -124,7 +124,7 @@ func printBLKGraphWR(containers []types.Container) {
 }
 func printBLKGraphRD(containers []types.Container) {
 	for _, c := range containers {
-		key := getKey(c.Names)
+		key := GetKey(c.Names)
 		fmt.Printf("%s_%srd.label %s_rd\n", key, blkkey, key)
 		fmt.Printf("%s_%srd.type %s\n", key, blkkey, "GAUGE")
 		fmt.Printf("%s_%srd.min %d\n", key, blkkey, 0)
@@ -148,7 +148,7 @@ type MetricValues struct {
 var values = make(map[string]*MetricValues, 10)
 
 func AddMetricValues(m *MetricValues) {
-	key := getKey(m.Names)
+	key := GetKey(m.Names)
 	values[key] = m
 }
 

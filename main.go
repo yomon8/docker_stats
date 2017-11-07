@@ -22,8 +22,8 @@ const (
 
 var version string
 
-func getContainerList(cli *client.Client, statefile *statefile.ContainerList) ([]types.Container, error) {
-	containerList, err := statefile.Load()
+func getContainerList(cli *client.Client, cl *statefile.ContainerList) ([]types.Container, error) {
+	containerList, err := cl.Load()
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func getContainerList(cli *client.Client, statefile *statefile.ContainerList) ([
 		}
 	}
 
-	err = statefile.Save(containerList)
+	err = cl.Save(containerList)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func main() {
 		}
 	}
 
-	statefile, err := statefile.NewContainerList(stateFileName)
+	cl, err := statefile.NewContainerList(stateFileName)
 	if err != nil {
 		log.Fatal("State File Error:", err)
 	}
@@ -73,7 +73,7 @@ func main() {
 		log.Fatal("Create Docker Client Error:", err)
 	}
 
-	containers, err := getContainerList(cli, statefile)
+	containers, err := getContainerList(cli, cl)
 	if err != nil {
 		log.Fatal("Get ContainerList Error:", err)
 	}
@@ -98,18 +98,40 @@ func main() {
 		sc := bufio.NewScanner(cstat.Body)
 		if sc.Scan() {
 			jsonBytes := []byte(sc.Text())
-			sf := new(stats.ContainerStats)
-			if err := json.Unmarshal(jsonBytes, sf); err != nil {
+			cs := new(stats.ContainerStats)
+			if err := json.Unmarshal(jsonBytes, cs); err != nil {
 				log.Println("JSON Unmarshal error:", err)
 			}
-			mu, ml := sf.MemUsage()
-			br, bw := sf.BlockIO()
-			nr, nt := sf.NetworkIO()
+			p, err := statefile.NewContainerStatsFile(graph.GetKey(c.Names))
+			if err != nil {
+				log.Println("Stats state setting error:", err)
+			}
+
+			ps, err := p.Load()
+			if err != nil {
+				log.Println("Stats state read error:", err)
+			}
+
+			var (
+				pbr, pbw uint64
+				pnr, pnt float64
+			)
+
+			if ps != nil {
+				pbr, pbw = ps.BlockIO()
+				pnr, pnt = ps.NetworkIO()
+			}
+			cbr, cbw := cs.BlockIO()
+			cnr, cnt := cs.NetworkIO()
+
+			br, bw := cbr-pbr, cbw-pbw
+			nr, nt := cnr-pnr, cnt-pnt
+			mu, ml := cs.MemUsage()
 			graph.AddMetricValues(&graph.MetricValues{
 				ID:         c.ID[:12],
 				Image:      c.Image,
 				Names:      c.Names,
-				CPUPercent: sf.CPUPercent(),
+				CPUPercent: cs.CPUPercent(),
 				MemUsage:   mu,
 				MemLimit:   ml,
 				BlockRD:    br,
@@ -117,6 +139,8 @@ func main() {
 				NetRCV:     nr,
 				NetTRN:     nt,
 			})
+
+			p.Save(cs)
 		}
 	}
 	graph.PrintMetricsValues()
