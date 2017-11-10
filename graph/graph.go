@@ -84,7 +84,7 @@ func printMemoryGraph(containers []types.Container) {
 	fmt.Printf("limit_%s.label limit\n", memkey)
 	fmt.Printf("limit_%s.type %s\n", memkey, "GAUGE")
 	fmt.Printf("limit_%s.min %d\n", memkey, 0)
-	fmt.Printf("limit_%s.draw %s\n", memkey, "AREA")
+	fmt.Printf("limit_%s.draw %s\n", memkey, "LINE1")
 	for _, c := range containers {
 		key := GetKey(c.Names)
 		fmt.Printf("%s_%s.label %s\n", key, memkey, key)
