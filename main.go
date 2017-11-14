@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	stateFileName = "containerlist"
+	stateFilePrefix = "docker_"
+	stateFileName   = "containerlist"
 )
 
 var version string
@@ -65,7 +66,7 @@ func main() {
 		}
 	}
 
-	cl, err := statefile.NewContainerList(stateFileName)
+	cl, err := statefile.NewContainerList(fmt.Sprint(stateFilePrefix, stateFileName))
 	if err != nil {
 		log.Fatal("State File Error:", err)
 	}
@@ -104,7 +105,7 @@ func main() {
 			if err := json.Unmarshal(jsonBytes, cs); err != nil {
 				log.Println("JSON Unmarshal error:", err)
 			}
-			p, err := statefile.NewContainerStatsFile(graph.GetKey(c.Names))
+			p, err := statefile.NewContainerStatsFile(fmt.Sprint(stateFilePrefix, graph.GetKey(c.Names)))
 			if err != nil {
 				log.Println("Stats state setting error:", err)
 			}
