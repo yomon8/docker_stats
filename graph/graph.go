@@ -9,12 +9,12 @@ import (
 
 const (
 	category      = "docker"
-	graphkeyCPU   = "doker_cpu"
-	graphkeyMEM   = "doker_mem"
-	graphkeyNWTX  = "doker_nw_tx"
-	graphkeyNWRX  = "doker_nw_rx"
-	graphkeyBLKWR = "doker_blk_wr"
-	graphkeyBLKRD = "doker_blk_rd"
+	graphkeyCPU   = "docker_cpu"
+	graphkeyMEM   = "docker_mem"
+	graphkeyNWTX  = "docker_nw_tx"
+	graphkeyNWRX  = "docker_nw_rx"
+	graphkeyBLKWR = "docker_blk_wr"
+	graphkeyBLKRD = "docker_blk_rd"
 	cpukey        = "cpu"
 	memkey        = "mem"
 	nwkey         = "nw"
