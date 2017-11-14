@@ -36,7 +36,6 @@ func GetKey(names []string) string {
 }
 
 func PrintGraphDefinition(hostname string, containers []types.Container) {
-	fmt.Printf("host_name %s\n\n", hostname)
 	//CPU
 	printGraphMetadata(graphkeyCPU, "CPU Usage", "1000", "%")
 	printCPUGraph(containers)
